@@ -3,7 +3,12 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema(
-  {
+  { 
+    
+    googleId: {
+    type: String,
+    required: true,
+  },
     firstName: {
       type: String,
       required: false,
@@ -17,23 +22,20 @@ const UserSchema = new Schema(
       unique: true,
       required: true,
     },
-    password: {
-      type: String,
-      required: true,
-    },
+    
     createdOnDate: {
       type: String,
     },
     userActive: {
       type: Boolean,
-      default: false,
+      default: true,
     },
     acceptedTerms: {
       type: Boolean,
     },
     userStatus: {
       type: String,
-      default: 'pending',
+      default: 'accepted',
     },
     uniqueId: {
       type: String,

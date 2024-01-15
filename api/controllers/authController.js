@@ -1,3 +1,4 @@
+
 const bcrypt = require('bcryptjs');
 const _ = require('lodash');
 const jwt = require('jsonwebtoken');
@@ -14,7 +15,57 @@ const { sendEmail } = require('../../middlewares/utils/emailService');
 const User = require('../models/userModel');
 const Code = require('../models/codeModel');
 const Task = require('../models/taskModel');
+const Index = require('../models/indexesModel');
 
+
+
+
+exports.verify_google_id_settings = async(req, res)=>{
+
+let googleID = req.query.id;
+try {
+  const user = await User.findOne({ googleId: googleID });
+  const userIndex = await Index.findOne({googleID: googleID}); 
+  // if(!userIndex){
+   
+  //   const list = client.createIndex({
+  //     createRequest: {
+  //       name: googleID,
+  //       dimension: 1536,
+  //       metric: 'cosine'
+  //     },
+  //   });
+  //   const newIndex ={
+  //     googleID: googleID,
+  //     index: googleID
+  //   }
+  //   let indexes = await Index.create(newIndex)
+
+  // }
+  if(user){
+ 
+  
+     res.status(200).json({
+      success: true,
+      message: 'User data',
+      data: user,
+
+     });
+
+  }
+  else
+  res.redirect("http://localhost:3000");
+}
+catch {
+  res.status(400).json({
+    success: false,
+    message: 'Something went wrong.',
+    data: null,
+  });
+}
+
+
+};
 /**
  * Logs a user in
  * POST:
@@ -96,6 +147,35 @@ exports.login_user = async (req, res) => {
  *  "uniqueId": "string with unique uuid for DB queries without exposing DB ID"
  * }
  */
+
+exports.googleConsent = async (req, res) => {
+ 
+  const rootUrl = `https://accounts.google.com/o/oauth2/v2/auth`;
+
+  const options = {
+    redirect_uri: "http://localhost:5000/google/callback",
+    client_id: "156954600113-o04sfk2ovso96u3c6duel554av8667nj.apps.googleusercontent.com",
+    access_type: "offline",
+    response_type: "code",
+    prompt: "consent",
+    scope: [
+      "https://www.googleapis.com/auth/userinfo.profile",
+      "https://www.googleapis.com/auth/userinfo.email",
+    ].join(" "),
+    state: "/profile",
+  };
+
+  const qs = new URLSearchParams(options);
+ console.log(rootUrl+"?"+qs.toString())
+
+  res.status(201).json({
+    success: true,
+    message: 'link',
+    data: {  link: rootUrl+"?"+qs.toString()},
+  })
+};
+
+
 exports.create_new_user = async (req, res) => {
   const {
     firstName,
@@ -244,15 +324,18 @@ exports.validate_user_email_and_account = async (req, res) => {
     res.sendStatus(500);
   }
 };
+ 
 
-/**
- * Sends a code to the user to allow them to reset their passowrd
- * POST
- * PARAMS:
- * {
- *   "email": ""
- * }
- */
+exports.get_index_state= async(req,res)=>{
+  console.log(req.query.id);
+  const indexDescription = await client.describeIndex(req.query.id);
+  console.log(indexDescription)
+  res.status(200).json({ready: indexDescription.status.ready});
+}
+
+
+
+
 exports.get_reset_password_code = async (req, res) => {
   const { email } = req.body;
   if (!email) {

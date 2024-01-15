@@ -12,15 +12,10 @@ const validateEmail = (email) => {
 
 /**
  * validatePassword helper method
- * @param {string} password
+
  * @returns {Boolean} True or False
  */
-const validatePassword = (password) => {
-  if (password.length <= 6 || password === '') {
-    return false;
-  }
-  return true;
-};
+
 
 const checkEmailExists = (email) => {
   const submittedEmail = email;
@@ -43,9 +38,27 @@ const checkUserExists = async (uuid) => {
   });
 };
 
+  const ensureAuth = function (req, res, next) {
+    if (req.isAuthenticated()) {
+      
+      return next()
+    } else {
+      res.redirect('/')
+    }
+  };
+ const ensureGuest =  function (req, res, next) {
+    if (!req.isAuthenticated()) {
+     
+      return next();
+    } else {
+      res.redirect('/log');
+    }
+  };
+
 module.exports = {
   validateEmail,
-  validatePassword,
+  ensureAuth,
+  ensureGuest,
   checkEmailExists,
   checkUserExists,
 };
