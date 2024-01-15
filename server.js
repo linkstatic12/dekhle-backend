@@ -58,7 +58,7 @@ app.use(helmet());
 app.use(
   cors({
     credentials: true,
-    origin: ['http://localhost:3000'],
+    origin: ['http://datapsx.com/'],
   })
 );
 app.use((req, res, next) => {
