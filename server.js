@@ -11,6 +11,7 @@ const helmet = require('helmet');
 const session = require('express-session')
 const MongoStore = require('connect-mongo')
 const pinecone = require('@pinecone-database/pinecone')
+const path = require('path');
 // Init Express
 const app = express();
 require('dotenv').config({ path: './config/config.env' });
@@ -92,8 +93,9 @@ midProcessedVariablesRoutes(app);
 // 404 Handling
 
 app.use((req, res) => {
-  winston.error(`'Hit 404' - ${req.originalUrl} - ${req.method} - ${req.ip}`);
-  res.status(404).send({ url: req.originalUrl + ' not found' });
+  res.sendFile(path.join(__dirname, '/index.html'));
+  //winston.error(`'Hit 404' - ${req.originalUrl} - ${req.method} - ${req.ip}`);
+  //res.status(404).send({ url: req.originalUrl + ' not found' });
 });
 console.log(process.env.MONGO_URI);
 let store = new MongoStore({
@@ -116,10 +118,12 @@ app.use(passport.session())
 
 
 // Server Port Controls
-const port = process.env.PORT || '5000';
+const port = process.env.PORT || '80';
 app.set('port', port);
 
-
+app.get('/', function(req, res) {
+  res.sendFile(path.join(__dirname, '/index.html'));
+});
 // Passport middleware
 
 const server = http.createServer(app);
